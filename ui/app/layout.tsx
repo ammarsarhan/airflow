@@ -14,7 +14,7 @@ const geistMono = Geist_Mono({
 
 export const metadata: Metadata = {
   title: "Airflow",
-  description: "A fully fledged airplane state streamlining management system.",
+  description: "A fully fledged airline internal state management system.",
 };
 
 export default function RootLayout({
