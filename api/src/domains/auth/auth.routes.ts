@@ -1,5 +1,6 @@
 // Exposes endpoints related to authentication with the correct corresponding authController function.
 import express from 'express';
+
 import AuthController from '@/domains/auth/auth.controller';
 import AuthService from '@/domains/auth/auth.service';
 

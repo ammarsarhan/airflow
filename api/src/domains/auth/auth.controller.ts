@@ -5,6 +5,7 @@
 
 import { Request, Response } from "express";
 import AuthService from "@/domains/auth/auth.service";
+import { validateCreateUserPayload } from "@/domains/auth/auth.validator";
 
 class AuthController {
     // private keyword automatically assigns this.service to service.
@@ -12,7 +13,16 @@ class AuthController {
 
     // Uses arrow function to automatically bind this.
     signUpUser = async (req: Request, res: Response) => {
-        return res.status(200).json({ message: "Hit endpoint." });
+        try {
+            const payload = req.body;
+            
+            const data = validateCreateUserPayload(payload);
+            this.service.signUpUserWithCredentials(data);
+    
+            return res.status(200).json({ message: "Hit endpoint." });
+        } catch (error: any) {
+            return res.status(500).json({ message: `An unknown error has occurred. ${error.message}` });
+        }
     };
 };
 

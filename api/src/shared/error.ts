@@ -1,3 +1,4 @@
+// Create a default error class to standardize error handling within the application.
 export default class AppError extends Error {
     public readonly statusCode: number;
     public readonly isOperational: boolean;
