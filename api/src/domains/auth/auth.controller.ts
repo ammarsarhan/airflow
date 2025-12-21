@@ -15,11 +15,11 @@ class AuthController {
     signUpUser = async (req: Request, res: Response) => {
         try {
             const payload = req.body;
-            
+
             const data = validateCreateUserPayload(payload);
-            this.service.signUpUserWithCredentials(data);
+            const user = await this.service.signUpUserWithCredentials(data);
     
-            return res.status(200).json({ message: "Hit endpoint." });
+            return res.status(200).json({ message: "Created user account successfully.", data: user });
         } catch (error: any) {
             return res.status(500).json({ message: `An unknown error has occurred. ${error.message}` });
         }

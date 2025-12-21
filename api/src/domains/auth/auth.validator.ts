@@ -4,6 +4,7 @@
 
 import z from 'zod';
 import { subYears, isBefore, isEqual } from 'date-fns';
+import { BadRequestError } from '@/shared/error';
 
 const createUserSchema = z.object({ 
     firstName: z
@@ -29,6 +30,6 @@ const createUserSchema = z.object({
 
 export const validateCreateUserPayload = (payload: z.infer<typeof createUserSchema>) => {
     const parsed = createUserSchema.safeParse(payload);
-    if (!parsed.success) return parsed.error.issues[0].message;
+    if (!parsed.success) throw new BadRequestError(parsed.error.issues[0].message);
     return parsed.data;
 };
