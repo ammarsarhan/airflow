@@ -402,6 +402,10 @@ README.md
 ```
 /ui
     /app
+        /account
+            /settings
+            /security
+            /preferences
         /auth
             /user
                 /sign-up

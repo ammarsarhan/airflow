@@ -3,8 +3,8 @@
 // caching the data as required,
 // and returning the required data.
 
-import { InternalServerError } from "@/shared/error";
 import prisma from "@/shared/prisma";
+import { InternalServerError } from "@/shared/error";
 
 export default class AuthService {
     signUpUserWithCredentials = async (data: any) => {
