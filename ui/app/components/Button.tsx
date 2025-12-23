@@ -7,7 +7,7 @@ interface ButtonProps {
 
 export default function Button({ label, link = false } : ButtonProps) {
     return (
-        <button className="group flex items-center justify-center gap-x-2 px-5 py-3 rounded-full bg-black hover:bg-black/75 transition-colors cursor-pointer text-white">
+        <button className="group flex items-center justify-center gap-x-2 px-6 py-3 rounded-full bg-black hover:bg-black/75 transition-colors cursor-pointer text-white">
             <span className="text-xs">{label}</span>
             {
                 link &&

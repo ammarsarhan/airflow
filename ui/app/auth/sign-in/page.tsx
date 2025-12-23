@@ -7,9 +7,7 @@ import Input from "@/app/components/Input";
 import { IoIosAirplane } from "react-icons/io";
 import Button from "@/app/components/Button";
 
-interface SignUpFormState {
-    firstName: string;
-    lastName: string;
+interface SignInFormState {
     email: string;
     password: string;
     showPassword: boolean;
@@ -17,10 +15,10 @@ interface SignUpFormState {
 
 interface SignUpFormAction {
     type: "SET",
-    payload: Partial<SignUpFormState>
+    payload: Partial<SignInFormState>
 }
 
-function reducer(state: SignUpFormState, action: SignUpFormAction) {
+function reducer(state: SignInFormState, action: SignUpFormAction) {
     switch (action.type) {
         case "SET":
             return {
@@ -32,8 +30,6 @@ function reducer(state: SignUpFormState, action: SignUpFormAction) {
 
 export default function SignUp() {
     const [state, dispatch] = useReducer(reducer, {
-        firstName: "",
-        lastName: "",
         email: "",
         password: "",
         showPassword: false
@@ -46,25 +42,14 @@ export default function SignUp() {
                 <span className="font-bold">Airflow</span>
             </Link>
             <div className="flex flex-col items-center gap-y-4 w-full">
-                <h1 className="text-2xl font-semibold mb-2 text-left w-full">Sign Up To Airflow <br/> As A Passenger</h1>
-                <div className="flex items-center gap-x-4 w-full">
-                    <Input 
-                        value={state.firstName} 
-                        onChange={(e) => dispatch({ type: "SET", payload: { firstName: e.target.value } })} 
-                        label="First Name" 
-                        placeholder="First Name"
-                        />
-                    <Input 
-                        value={state.lastName} 
-                        onChange={(e) => dispatch({ type: "SET", payload: { lastName: e.target.value } })} 
-                        label="Last Name" 
-                        placeholder="Last Name"
-                    />
+                <div className="flex flex-col gap-y-1 w-full mb-2">
+                    <h1 className="text-2xl font-semibold text-left w-full">Sign In To Airflow</h1>
+                    <p className="text-xxs text-gray-700 max-w-3/4">Log in as a passenger or an operations manager to view your flights and actions.</p>
                 </div>
                 <Input 
                     value={state.email} 
                     onChange={(e) => dispatch({ type: "SET", payload: { email: e.target.value } })} 
-                    label="Email" 
+                    label="Email"
                     placeholder="Email Address"
                 />
                 <div className="w-full">
@@ -80,9 +65,9 @@ export default function SignUp() {
                         <span>Show password</span>
                     </div>
                 </div>
-                <Button label="Create Account"/>
+                <Button label="Sign In"/>
             </div>
-            <p className="absolute bottom-4 text-xxs my-2">Already have an account? <Link href="/auth/sign-in" className="text-blue-800 hover:underline">Sign In</Link></p>
+            <p className="absolute bottom-4 text-xxs my-2">Don&apos;t have an account? <Link href="/auth/user/sign-up" className="text-blue-800 hover:underline">Sign Up</Link></p>
         </form>
     )
 }
