@@ -173,10 +173,10 @@ model User {
 }
 
 model Passenger {
-  id          String @id @default(cuid())
-  userId      String @unique
-  passportNumber  String @unique
-  nationality String
+  id             String @id @default(cuid())
+  userId         String @unique
+  passportNumber String @unique
+  nationality    String
 
   user      User       @relation(fields: [userId], references: [id], onDelete: Cascade)
   bookings  Booking[]
@@ -190,21 +190,21 @@ model Passenger {
 }
 
 model Booking {
-  id            String        @id @default(cuid())
-  pnrCode       String        @unique
-  userId        String
-  passengerId   String
-  totalFare     Decimal       @db.Decimal(10, 2)
-  status BookingStatus @default(PENDING)
-  createdAt     DateTime      @default(now())
-  updatedAt     DateTime      @updatedAt
+  id          String        @id @default(cuid())
+  pnrCode     String        @unique
+  userId      String
+  passengerId String
+  totalFare   Decimal       @db.Decimal(10, 2)
+  status      BookingStatus @default(PENDING)
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
 
-  user           User          @relation(fields: [userId], references: [id])
-  passenger      Passenger     @relation(fields: [passengerId], references: [id])
-  tickets        Ticket[]
-  payment        Payment?
-  refund         Refund?
-  
+  user      User      @relation(fields: [userId], references: [id])
+  passenger Passenger @relation(fields: [passengerId], references: [id])
+  tickets   Ticket[]
+  payment   Payment?
+  refund    Refund?
+
   groupBooking   GroupBooking? @relation(fields: [groupBookingId], references: [id])
   groupBookingId String?
 
@@ -214,7 +214,7 @@ model Booking {
 
 model Ticket {
   id           String       @id @default(cuid())
-  ticketNo     String       @unique
+  ticketNumber String       @unique
   bookingId    String
   passengerId  String
   flightId     String
@@ -229,14 +229,14 @@ model Ticket {
   seat      Seat?     @relation(fields: [seatId], references: [id])
   fareClass FareClass @relation(fields: [fareClassId], references: [id])
 
-  @@index([ticketNo])
+  @@index([ticketNumber])
   @@index([flightId])
 }
 
 model GroupBooking {
-  id              String   @id @default(cuid())
-  groupName       String
-  createdAt       DateTime @default(now())
+  id        String   @id @default(cuid())
+  groupName String
+  createdAt DateTime @default(now())
 
   bookings Booking[]
 }
@@ -269,7 +269,7 @@ model Refund {
 
 model Flight {
   id              String       @id @default(cuid())
-  flightNo        String
+  flightNumber    String
   routeId         String
   aircraftId      String?
   scheduleId      String?
@@ -293,7 +293,7 @@ model Flight {
   statusHistory FlightStatusHistory[]
   baggages      Baggage[]
 
-  @@index([flightNo])
+  @@index([flightNumber])
   @@index([scheduledDepart])
 }
 
@@ -374,12 +374,12 @@ model Gate {
 }
 
 model Aircraft {
-  id         String         @id @default(cuid())
+  id             String         @id @default(cuid())
   aircraftNumber String         @unique
-  model      String
-  capacity   Int
-  status     AircraftStatus @default(ACTIVE)
-  location   String?
+  model          String
+  capacity       Int
+  status         AircraftStatus @default(ACTIVE)
+  location       String?
 
   seats   Seat[]
   flights Flight[]
@@ -390,7 +390,7 @@ model Aircraft {
 model Seat {
   id         String    @id @default(cuid())
   aircraftId String
-  seatNumber     String
+  seatNumber String
   class      SeatClass
   price      Decimal   @db.Decimal(10, 2)
   isExitRow  Boolean   @default(false)
@@ -405,7 +405,7 @@ model Seat {
 
 model FareClass {
   id        String    @id @default(cuid())
-  class SeatClass
+  class     SeatClass
   basePrice Decimal   @db.Decimal(10, 2)
 
   tickets Ticket[]
@@ -437,11 +437,11 @@ model SSR {
 }
 
 model CheckIn {
-  id           String   @id @default(cuid())
-  passengerId  String
-  flightId     String
-  seatId       String
-  checkinTime  DateTime @default(now())
+  id          String   @id @default(cuid())
+  passengerId String
+  flightId    String
+  seatId      String
+  checkinTime DateTime @default(now())
 
   passenger Passenger @relation(fields: [passengerId], references: [id])
   seat      Seat      @relation(fields: [seatId], references: [id])
