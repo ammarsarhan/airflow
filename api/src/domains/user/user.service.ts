@@ -7,4 +7,4 @@ export class UserService {
         if (!passenger) throw new InternalServerError("An internal error has occurred while creating a new passenger.");
         return passenger;
     };
-}
+};

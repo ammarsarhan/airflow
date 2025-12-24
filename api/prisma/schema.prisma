@@ -175,7 +175,7 @@ model User {
 model Passenger {
   id          String @id @default(cuid())
   userId      String @unique
-  passportNo  String @unique
+  passportNumber  String @unique
   nationality String
 
   user      User       @relation(fields: [userId], references: [id], onDelete: Cascade)
@@ -186,7 +186,7 @@ model Passenger {
   checkIns  CheckIn[]
   baggages  Baggage[]
 
-  @@index([passportNo])
+  @@index([passportNumber])
 }
 
 model Booking {
@@ -195,7 +195,7 @@ model Booking {
   userId        String
   passengerId   String
   totalFare     Decimal       @db.Decimal(10, 2)
-  bookingStatus BookingStatus @default(PENDING)
+  status BookingStatus @default(PENDING)
   createdAt     DateTime      @default(now())
   updatedAt     DateTime      @updatedAt
 
@@ -204,6 +204,7 @@ model Booking {
   tickets        Ticket[]
   payment        Payment?
   refund         Refund?
+  
   groupBooking   GroupBooking? @relation(fields: [groupBookingId], references: [id])
   groupBookingId String?
 
@@ -235,7 +236,6 @@ model Ticket {
 model GroupBooking {
   id              String   @id @default(cuid())
   groupName       String
-  totalPassengers Int
   createdAt       DateTime @default(now())
 
   bookings Booking[]
@@ -331,7 +331,7 @@ model FlightStatusHistory {
   flightId  String
   oldStatus String
   newStatus String
-  timestamp DateTime @default(now())
+  changedAt DateTime @default(now())
 
   flight Flight @relation(fields: [flightId], references: [id], onDelete: Cascade)
 
@@ -356,7 +356,6 @@ model Terminal {
   id           String @id @default(cuid())
   airportId    String
   terminalName String
-  noOfGates    Int
 
   airport Airport @relation(fields: [airportId], references: [id], onDelete: Cascade)
   gates   Gate[]
@@ -376,7 +375,7 @@ model Gate {
 
 model Aircraft {
   id         String         @id @default(cuid())
-  aircraftNo String         @unique
+  aircraftNumber String         @unique
   model      String
   capacity   Int
   status     AircraftStatus @default(ACTIVE)
@@ -385,13 +384,13 @@ model Aircraft {
   seats   Seat[]
   flights Flight[]
 
-  @@index([aircraftNo])
+  @@index([aircraftNumber])
 }
 
 model Seat {
   id         String    @id @default(cuid())
   aircraftId String
-  seatNo     String
+  seatNumber     String
   class      SeatClass
   price      Decimal   @db.Decimal(10, 2)
   isExitRow  Boolean   @default(false)
@@ -401,12 +400,12 @@ model Seat {
   tickets  Ticket[]
   checkIns CheckIn[]
 
-  @@unique([aircraftId, seatNo])
+  @@unique([aircraftId, seatNumber])
 }
 
 model FareClass {
   id        String    @id @default(cuid())
-  className SeatClass
+  class SeatClass
   basePrice Decimal   @db.Decimal(10, 2)
 
   tickets Ticket[]
@@ -442,7 +441,6 @@ model CheckIn {
   passengerId  String
   flightId     String
   seatId       String
-  baggageCount Int      @default(0)
   checkinTime  DateTime @default(now())
 
   passenger Passenger @relation(fields: [passengerId], references: [id])
