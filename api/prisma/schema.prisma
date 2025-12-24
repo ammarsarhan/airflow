@@ -1,11 +1,8 @@
 // This is your Prisma schema file,
 // learn more about it in the docs: https://pris.ly/d/prisma-schema
 
-// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
-// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
-
 generator client {
-  provider = "prisma-client"
+  provider = "prisma-client-js"
   output   = "../src/generated/prisma"
 }
 
@@ -13,11 +10,559 @@ datasource db {
   provider = "postgresql"
 }
 
+enum UserRole {
+  ADMIN
+  OPERATIONS
+  STAFF
+  PASSENGER
+}
+
+enum StaffRole {
+  CHECK_IN
+  GATE_AGENT
+  BAGGAGE_HANDLER
+  PILOT
+  COPILOT
+  STAFF
+}
+
+enum UserStatus {
+  ACTIVE
+  INACTIVE
+  SUSPENDED
+}
+
+enum FlightStatus {
+  SCHEDULED
+  BOARDING
+  DEPARTED
+  IN_FLIGHT
+  LANDED
+  ARRIVED
+  CANCELLED
+  DELAYED
+}
+
+enum BookingStatus {
+  PENDING
+  CONFIRMED
+  CANCELLED
+  COMPLETED
+}
+
+enum TicketStatus {
+  ISSUED
+  CHECKED_IN
+  BOARDED
+  CANCELLED
+  REFUNDED
+}
+
+enum PaymentMethod {
+  CREDIT_CARD
+  CASH
+}
+
+enum PaymentStatus {
+  PENDING
+  COMPLETED
+  FAILED
+  REFUNDED
+}
+
+enum RefundStatus {
+  REQUESTED
+  PROCESSING
+  APPROVED
+  REJECTED
+  COMPLETED
+}
+
+enum SeatClass {
+  ECONOMY
+  PREMIUM
+  BUSINESS
+  FIRST_CLASS
+}
+
+enum AircraftStatus {
+  ACTIVE
+  MAINTENANCE
+  RETIRED
+  GROUNDED
+}
+
+enum GateStatus {
+  AVAILABLE
+  OCCUPIED
+  MAINTENANCE
+  CLOSED
+}
+
+enum BaggageStatus {
+  CHECKED_IN
+  LOADED
+  IN_TRANSIT
+  ARRIVED
+  DELIVERED
+  LOST
+  DAMAGED
+}
+
+enum SSRType {
+  WHEELCHAIR
+  SPECIAL_MEAL
+  EXTRA_SPACE
+  UNACCOMPANIED_MINOR
+  PET_ACCOMODATION
+  MEDICAL_EQUIPMENT
+  OTHER
+}
+
+enum SSRStatus {
+  REQUESTED
+  CONFIRMED
+  DENIED
+  COMPLETED
+}
+
+enum WaitlistStatus {
+  ACTIVE
+  CONFIRMED
+  EXPIRED
+  CANCELLED
+}
+
+enum RecurrenceType {
+  DAILY
+  WEEKLY
+  MONTHLY
+  NONE
+}
+
+enum PilotStatus {
+  ACTIVE
+  ON_LEAVE
+  SUSPENDED
+  TRAINING
+}
+
 model User {
-  id          String   @unique @default(cuid())
-  firstName   String
-  lastName    String
-  email       String
-  phone       String
-  dateOfBirth DateTime
+  id        String     @id @default(cuid())
+  firstName String
+  lastName  String
+  email     String     @unique
+  phone     String[]
+  password  String
+  birthDate DateTime
+  role      UserRole
+  status    UserStatus @default(ACTIVE)
+  createdAt DateTime   @default(now())
+
+  street  String?
+  city    String?
+  state   String?
+  country String?
+
+  bookings  Booking[]
+  passenger Passenger?
+  manager   OperationsManager?
+  staff     Staff?
+
+  @@index([email])
+}
+
+model Passenger {
+  id          String @id @default(cuid())
+  userId      String @unique
+  passportNo  String @unique
+  nationality String
+
+  user      User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  bookings  Booking[]
+  tickets   Ticket[]
+  waitlists Waitlist[]
+  ssrs      SSR[]
+  checkIns  CheckIn[]
+  baggages  Baggage[]
+
+  @@index([passportNo])
+}
+
+model Booking {
+  id            String        @id @default(cuid())
+  pnrCode       String        @unique
+  userId        String
+  passengerId   String
+  totalFare     Decimal       @db.Decimal(10, 2)
+  bookingStatus BookingStatus @default(PENDING)
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
+
+  user           User          @relation(fields: [userId], references: [id])
+  passenger      Passenger     @relation(fields: [passengerId], references: [id])
+  tickets        Ticket[]
+  payment        Payment?
+  refund         Refund?
+  groupBooking   GroupBooking? @relation(fields: [groupBookingId], references: [id])
+  groupBookingId String?
+
+  @@index([pnrCode])
+  @@index([userId])
+}
+
+model Ticket {
+  id           String       @id @default(cuid())
+  ticketNo     String       @unique
+  bookingId    String
+  passengerId  String
+  flightId     String
+  seatId       String?
+  fareClassId  String
+  ticketStatus TicketStatus @default(ISSUED)
+  issuedAt     DateTime     @default(now())
+
+  booking   Booking   @relation(fields: [bookingId], references: [id])
+  passenger Passenger @relation(fields: [passengerId], references: [id])
+  flight    Flight    @relation(fields: [flightId], references: [id])
+  seat      Seat?     @relation(fields: [seatId], references: [id])
+  fareClass FareClass @relation(fields: [fareClassId], references: [id])
+
+  @@index([ticketNo])
+  @@index([flightId])
+}
+
+model GroupBooking {
+  id              String   @id @default(cuid())
+  groupName       String
+  totalPassengers Int
+  createdAt       DateTime @default(now())
+
+  bookings Booking[]
+}
+
+model Payment {
+  id            String        @id @default(cuid())
+  bookingId     String        @unique
+  amount        Decimal       @db.Decimal(10, 2)
+  method        PaymentMethod
+  transactionId String?       @unique
+  status        PaymentStatus @default(PENDING)
+  timestamp     DateTime      @default(now())
+
+  booking Booking @relation(fields: [bookingId], references: [id])
+
+  @@index([transactionId])
+}
+
+model Refund {
+  id          String       @id @default(cuid())
+  bookingId   String       @unique
+  amount      Decimal      @db.Decimal(10, 2)
+  reason      String
+  status      RefundStatus @default(REQUESTED)
+  createdAt   DateTime     @default(now())
+  processedAt DateTime?
+
+  booking Booking @relation(fields: [bookingId], references: [id])
+}
+
+model Flight {
+  id              String       @id @default(cuid())
+  flightNo        String
+  routeId         String
+  aircraftId      String?
+  scheduleId      String?
+  scheduledDepart DateTime
+  actualDepart    DateTime?
+  scheduledArrive DateTime
+  actualArrive    DateTime?
+  status          FlightStatus @default(SCHEDULED)
+  revenue         Decimal?     @db.Decimal(12, 2)
+  gateId          String?
+  flightCrewId    String?      @unique
+
+  route         Route                 @relation(fields: [routeId], references: [id])
+  aircraft      Aircraft?             @relation(fields: [aircraftId], references: [id])
+  schedule      FlightSchedule?       @relation(fields: [scheduleId], references: [id])
+  gate          Gate?                 @relation(fields: [gateId], references: [id])
+  flightCrew    Crew?                 @relation(fields: [flightCrewId], references: [id])
+  tickets       Ticket[]
+  waitlists     Waitlist[]
+  ssrs          SSR[]
+  statusHistory FlightStatusHistory[]
+  baggages      Baggage[]
+
+  @@index([flightNo])
+  @@index([scheduledDepart])
+}
+
+model FlightSchedule {
+  id             String         @id @default(cuid())
+  routeId        String
+  recurrenceType RecurrenceType @default(NONE)
+  startDate      DateTime
+  endDate        DateTime?
+  distance       Int? // in kilometers
+  duration       Int? // in minutes
+  status         String         @default("ACTIVE")
+
+  route   Route    @relation(fields: [routeId], references: [id])
+  flights Flight[]
+}
+
+model Route {
+  id              String @id @default(cuid())
+  departAirportId String
+  arriveAirportId String
+  distance        Int // in kilometers
+  duration        Int // in minutes
+
+  departAirport Airport          @relation("DepartureAirport", fields: [departAirportId], references: [id])
+  arriveAirport Airport          @relation("ArrivalAirport", fields: [arriveAirportId], references: [id])
+  flights       Flight[]
+  schedules     FlightSchedule[]
+
+  @@unique([departAirportId, arriveAirportId])
+}
+
+model FlightStatusHistory {
+  id        String   @id @default(cuid())
+  flightId  String
+  oldStatus String
+  newStatus String
+  timestamp DateTime @default(now())
+
+  flight Flight @relation(fields: [flightId], references: [id], onDelete: Cascade)
+
+  @@index([flightId])
+}
+
+model Airport {
+  id       String @id @default(cuid())
+  iataCode String @unique
+  name     String
+  city     String
+  country  String
+
+  terminals       Terminal[]
+  departureRoutes Route[]    @relation("DepartureAirport")
+  arrivalRoutes   Route[]    @relation("ArrivalAirport")
+
+  @@index([iataCode])
+}
+
+model Terminal {
+  id           String @id @default(cuid())
+  airportId    String
+  terminalName String
+  noOfGates    Int
+
+  airport Airport @relation(fields: [airportId], references: [id], onDelete: Cascade)
+  gates   Gate[]
+}
+
+model Gate {
+  id         String     @id @default(cuid())
+  terminalId String
+  gateNumber String
+  status     GateStatus @default(AVAILABLE)
+
+  terminal Terminal @relation(fields: [terminalId], references: [id], onDelete: Cascade)
+  flights  Flight[]
+
+  @@unique([terminalId, gateNumber])
+}
+
+model Aircraft {
+  id         String         @id @default(cuid())
+  aircraftNo String         @unique
+  model      String
+  capacity   Int
+  status     AircraftStatus @default(ACTIVE)
+  location   String?
+
+  seats   Seat[]
+  flights Flight[]
+
+  @@index([aircraftNo])
+}
+
+model Seat {
+  id         String    @id @default(cuid())
+  aircraftId String
+  seatNo     String
+  class      SeatClass
+  price      Decimal   @db.Decimal(10, 2)
+  isExitRow  Boolean   @default(false)
+  isBlocked  Boolean   @default(false)
+
+  aircraft Aircraft  @relation(fields: [aircraftId], references: [id], onDelete: Cascade)
+  tickets  Ticket[]
+  checkIns CheckIn[]
+
+  @@unique([aircraftId, seatNo])
+}
+
+model FareClass {
+  id        String    @id @default(cuid())
+  className SeatClass
+  basePrice Decimal   @db.Decimal(10, 2)
+
+  tickets Ticket[]
+}
+
+model Waitlist {
+  id           String         @id @default(cuid())
+  passengerId  String
+  flightId     String
+  waitlistRank Int
+  status       WaitlistStatus @default(ACTIVE)
+  createdAt    DateTime       @default(now())
+
+  passenger Passenger @relation(fields: [passengerId], references: [id])
+  flight    Flight    @relation(fields: [flightId], references: [id], onDelete: Cascade)
+}
+
+model SSR {
+  id          String    @id @default(cuid())
+  passengerId String
+  flightId    String
+  requestType SSRType
+  description String?
+  status      SSRStatus @default(REQUESTED)
+  createdAt   DateTime  @default(now())
+
+  passenger Passenger @relation(fields: [passengerId], references: [id])
+  flight    Flight    @relation(fields: [flightId], references: [id], onDelete: Cascade)
+}
+
+model CheckIn {
+  id           String   @id @default(cuid())
+  passengerId  String
+  flightId     String
+  seatId       String
+  baggageCount Int      @default(0)
+  checkinTime  DateTime @default(now())
+
+  passenger Passenger @relation(fields: [passengerId], references: [id])
+  seat      Seat      @relation(fields: [seatId], references: [id])
+
+  @@unique([passengerId, flightId])
+}
+
+model Baggage {
+  id          String        @id @default(cuid())
+  passengerId String
+  flightId    String
+  weight      Decimal       @db.Decimal(5, 2)
+  isOversized Boolean       @default(false)
+  status      BaggageStatus @default(CHECKED_IN)
+  tagNumber   String?       @unique
+
+  passenger Passenger @relation(fields: [passengerId], references: [id])
+  flight    Flight    @relation(fields: [flightId], references: [id])
+}
+
+model Staff {
+  id       String     @id @default(cuid())
+  userId   String     @unique
+  ssn      String     @unique
+  role     StaffRole
+  status   UserStatus @default(ACTIVE)
+  hireDate DateTime   @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  pilot          Pilot?
+  copilot        Copilot?
+  attendant      FlightAttendant?
+  checkInAgent   CheckInAgent?
+  gateAgent      GateAgent?
+  baggageHandler BaggageHandler?
+
+  @@index([ssn])
+}
+
+model OperationsManager {
+  id     String @id @default(cuid())
+  userId String @unique
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model Crew {
+  id        String @id @default(cuid())
+  name      String
+  pilotId   String
+  copilotId String
+
+  flight Flight?
+
+  pilot      Pilot             @relation(fields: [pilotId], references: [id])
+  copilot    Copilot           @relation(fields: [copilotId], references: [id])
+  attendants FlightAttendant[]
+}
+
+model Pilot {
+  id      String @id @default(cuid())
+  staffId String @unique
+
+  staff Staff  @relation(fields: [staffId], references: [id])
+  crews Crew[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Copilot {
+  id      String @id @default(cuid())
+  staffId String @unique
+
+  staff Staff  @relation(fields: [staffId], references: [id])
+  crews Crew[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model FlightAttendant {
+  id      String @id @default(cuid())
+  staffId String @unique
+
+  staff Staff  @relation(fields: [staffId], references: [id])
+  crews Crew[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model CheckInAgent {
+  id      String @id @default(cuid())
+  staffId String @unique
+
+  staff Staff @relation(fields: [staffId], references: [id])
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model GateAgent {
+  id      String @id @default(cuid())
+  staffId String @unique
+
+  staff Staff @relation(fields: [staffId], references: [id])
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model BaggageHandler {
+  id      String @id @default(cuid())
+  staffId String @unique
+
+  staff Staff @relation(fields: [staffId], references: [id])
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }

@@ -1,4 +1,4 @@
-import { FaChevronRight } from "react-icons/fa6";
+import { FaArrowRight } from "react-icons/fa6";
 
 interface ButtonProps {
     label: string;
@@ -11,7 +11,7 @@ export default function Button({ label, link = false } : ButtonProps) {
             <span className="text-xs">{label}</span>
             {
                 link &&
-                <FaChevronRight className="size-2.5 rotate-0 group-hover:-rotate-45 transition-all"/>
+                <FaArrowRight className="size-2.5 rotate-0 group-hover:-rotate-45 transition-all"/>
             }
         </button>
     )

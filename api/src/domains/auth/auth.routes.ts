@@ -9,6 +9,6 @@ const router = express.Router();
 const service = new AuthService();
 const controller = new AuthController(service);
 
-router.post('/user/sign-up', controller.signUpUser);
+router.post('/user/sign-up', controller.signUp);
 
 export default router;

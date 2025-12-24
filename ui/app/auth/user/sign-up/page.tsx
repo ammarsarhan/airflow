@@ -11,6 +11,7 @@ interface SignUpFormState {
     firstName: string;
     lastName: string;
     email: string;
+    phone: string;
     password: string;
     showPassword: boolean;
 }
@@ -35,6 +36,7 @@ export default function SignUp() {
         firstName: "",
         lastName: "",
         email: "",
+        phone: "",
         password: "",
         showPassword: false
     });
@@ -61,6 +63,12 @@ export default function SignUp() {
                         placeholder="Last Name"
                     />
                 </div>
+                <Input 
+                    value={state.phone} 
+                    onChange={(e) => dispatch({ type: "SET", payload: { phone: e.target.value } })} 
+                    label="Phone" 
+                    placeholder="Phone Number"
+                />
                 <Input 
                     value={state.email} 
                     onChange={(e) => dispatch({ type: "SET", payload: { email: e.target.value } })} 

@@ -1,5 +1,5 @@
 // Implements a singleton pattern to stop application from regenerating a new Prisma client due to hot reloads.
-import { PrismaClient } from '@/generated/prisma/client';
+import { PrismaClient } from '@/generated/prisma';
 import { PrismaPg } from '@prisma/adapter-pg';
 import { Pool } from 'pg';
 

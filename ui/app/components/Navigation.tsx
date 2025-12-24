@@ -13,6 +13,14 @@ export function NavigationDropdown({ label } : { label: string }) {
     )
 }
 
+export function NavigationButton({ label } : { label: string }) {
+    return (
+        <div className="flex items-center py-2 px-3 rounded-md border border-gray-300 bg-gray-200 hover:bg-gray-300 transition-colors cursor-pointer">
+            <span className="text-xs font-medium">{label}</span>
+        </div>
+    )
+}
+
 export default function Navigation() {
     return (
         <nav className="flex items-center justify-between p-4 border-b border-gray-300">
@@ -25,10 +33,10 @@ export default function Navigation() {
                     <NavigationDropdown label="Flights"/>
                     <NavigationDropdown label="Crew"/>
                     <NavigationDropdown label="Cargo"/>
-                    <NavigationDropdown label="Accounting"/>
+                    <NavigationButton label="Accounting"/>
                     <NavigationDropdown label="Reports"/>
                     <NavigationDropdown label="Routes"/>
-                    <NavigationDropdown label="Settings"/>
+                    <NavigationButton label="Settings"/>
                 </div>
             </div>
             <div className="flex items-center gap-x-3">
