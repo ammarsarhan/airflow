@@ -1,6 +1,7 @@
 # Architecture Decision Record: Flight Management System
 
 **Date:** December 24, 2025
+
 **Context:** Design and implementation of a comprehensive airline flight management system with multi-role authentication, booking management, and operational workflows.
 
 ---
@@ -32,8 +33,6 @@ The system requires secure, stateless authentication supporting multiple user ro
 
 **Decision:**  
 Implement a dual-token JWT strategy with short-lived access tokens and long-lived refresh tokens.
-
-**Rationale:**
 
 #### Access Tokens
 - **Type:** JWT (JSON Web Token)
@@ -2505,6 +2504,5 @@ function encrypt(text: string): string {
 
 **Document Version:** 1.0  
 **Last Updated:** December 24, 2025  
-**Authors:** Engineering Team  
-**Status:** Approved  
+**Author:** Ammar Yasser 
 **Next Review:** March 24, 2026
